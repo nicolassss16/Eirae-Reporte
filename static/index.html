@@ -1,0 +1,576 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Alerta Mosquito - Reporte Ciudadano</title>
+
+    <!-- 1. Tipografía Profesional (Google Fonts) -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+
+    <!-- 2. Estilos CSS -->
+    <style>
+        /* --- Variables de Diseño (Branding) --- */
+        :root {
+            --color-primary: #10B981; /* Un verde vibrante (éxito) */
+            --color-primary-dark: #059669;
+            --color-secondary: #3B82F6; /* Un azul claro (info, ubicación) */
+            --color-secondary-dark: #2563EB;
+            --color-danger: #EF4444; /* Rojo (error) */
+            --color-warning: #F59E0B; /* Naranja (aviso) */
+            --color-bg: #F9FAFB; /* Fondo de la página (casi blanco) */
+            --color-surface: #FFFFFF; /* Fondo de la tarjeta */
+            --color-text-primary: #1F2937; /* Texto principal (oscuro) */
+            --color-text-secondary: #6B7280; /* Texto (gris claro) */
+            --color-border: #D1D5DB; /* Bordes de inputs */
+            --border-radius: 0.5rem; /* 8px */
+            --shadow-sm: 0 1px 2px 0 rgba(0, 0, 0, 0.05);
+            --shadow-md: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -2px rgba(0, 0, 0, 0.1);
+        }
+
+        /* --- Reseteo y Estilos Base --- */
+        *, *::before, *::after {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+
+        html {
+            font-size: 100%; /* 16px */
+            -webkit-tap-highlight-color: transparent; /* Evita flash azul en móviles */
+        }
+
+        body {
+            font-family: 'Inter', -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+            background-color: var(--color-bg);
+            color: var(--color-text-primary);
+            line-height: 1.5;
+            -webkit-font-smoothing: antialiased;
+            -moz-osx-font-smoothing: grayscale;
+        }
+
+        /* --- Contenedor Principal --- */
+        .container {
+            max-width: 600px;
+            margin: 2rem auto;
+            padding: 2.5rem;
+            background-color: var(--color-surface);
+            border-radius: var(--border-radius);
+            box-shadow: var(--shadow-md);
+            overflow: hidden;
+        }
+
+        @media (max-width: 640px) {
+            .container {
+                margin: 0.5rem;
+                padding: 1.5rem;
+            }
+        }
+
+        /* --- Cabecera --- */
+        .header {
+            text-align: center;
+            margin-bottom: 2rem;
+        }
+        .header-logo {
+            font-size: 3rem;
+            line-height: 1;
+            margin-bottom: 0.5rem;
+            user-select: none;
+        }
+        .header h1 {
+            font-size: 1.875rem; /* 30px */
+            font-weight: 700;
+            color: var(--color-text-primary);
+        }
+        .header p {
+            font-size: 1rem;
+            color: var(--color-text-secondary);
+            margin-top: 0.5rem;
+        }
+
+        /* --- Estructura del Formulario (Secciones) --- */
+        .form-section {
+            margin-bottom: 2rem;
+        }
+        .form-section-title {
+            font-size: 1.25rem; /* 20px */
+            font-weight: 600;
+            padding-bottom: 0.5rem;
+            margin-bottom: 1.5rem;
+            border-bottom: 1px solid var(--color-border);
+            display: flex;
+            align-items: center;
+        }
+        .form-section-title span {
+            margin-right: 0.75rem;
+            font-size: 1.5rem;
+        }
+
+        .form-group {
+            margin-bottom: 1.25rem;
+        }
+
+        /* --- Estilos de Inputs y Labels --- */
+        label {
+            display: block;
+            font-size: 0.875rem; /* 14px */
+            font-weight: 500;
+            margin-bottom: 0.5rem;
+            color: var(--color-text-primary);
+        }
+
+        input[type="text"],
+        input[type="number"],
+        textarea {
+            display: block;
+            width: 100%;
+            padding: 0.75rem 1rem;
+            font-size: 1rem;
+            font-family: inherit;
+            color: var(--color-text-primary);
+            background-color: var(--color-surface);
+            border: 1px solid var(--color-border);
+            border-radius: var(--border-radius);
+            transition: border-color 0.2s ease, box-shadow 0.2s ease;
+        }
+
+        input::placeholder,
+        textarea::placeholder {
+            color: #9CA3AF; /* Gris 400 */
+        }
+
+        /* Micro-interacción: Foco en Inputs */
+        input:focus,
+        textarea:focus {
+            outline: none;
+            border-color: var(--color-primary);
+            box-shadow: 0 0 0 3px rgba(16, 185, 129, 0.2);
+        }
+
+        textarea {
+            min-height: 100px;
+            resize: vertical;
+        }
+
+        /* --- Estilos de Botones --- */
+        .btn {
+            display: inline-block;
+            width: 100%;
+            padding: 0.875rem 1.5rem;
+            font-size: 1rem;
+            font-weight: 600;
+            font-family: inherit;
+            color: #fff;
+            border: none;
+            border-radius: var(--border-radius);
+            cursor: pointer;
+            text-align: center;
+            text-decoration: none;
+            transition: all 0.2s ease-out;
+            box-shadow: var(--shadow-sm);
+        }
+
+        .btn svg {
+            width: 1.25em;
+            height: 1.25em;
+            margin-right: 0.5em;
+            vertical-align: middle;
+            margin-top: -3px;
+        }
+
+        /* Botón de Ubicación */
+        .btn-location {
+            background-color: var(--color-secondary);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+        .btn-location:hover {
+            background-color: var(--color-secondary-dark);
+            box-shadow: var(--shadow-md);
+            transform: translateY(-1px);
+        }
+
+        /* Botón de Enviar */
+        .btn-submit {
+            background-color: var(--color-primary);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+        .btn-submit:hover {
+            background-color: var(--color-primary-dark);
+            box-shadow: var(--shadow-md);
+            transform: translateY(-1px);
+        }
+
+        /* Estado de Carga/Deshabilitado */
+        .btn:disabled {
+            opacity: 0.6;
+            cursor: not-allowed;
+            box-shadow: none;
+            transform: none;
+        }
+
+        /* --- Grupo de Coordenadas --- */
+        .coords-group {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 1rem;
+        }
+
+        /* --- Input de Archivo (Dropzone) --- */
+        .file-dropzone {
+            position: relative;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            padding: 2rem;
+            border: 2px dashed var(--color-border);
+            border-radius: var(--border-radius);
+            background-color: #FDFDFD;
+            cursor: pointer;
+            transition: border-color 0.2s ease, background-color 0.2s ease;
+        }
+        .file-dropzone:hover {
+            border-color: var(--color-primary);
+            background-color: #F0FDF4;
+        }
+
+        /* Input real escondido */
+        .file-input {
+            position: absolute;
+            width: 1px;
+            height: 1px;
+            padding: 0;
+            margin: -1px;
+            overflow: hidden;
+            clip: rect(0, 0, 0, 0);
+            border: 0;
+        }
+        
+        .file-icon {
+            font-size: 2.5rem;
+            color: var(--color-secondary);
+        }
+        
+        .file-text {
+            font-size: 1rem;
+            font-weight: 500;
+            color: var(--color-text-secondary);
+            margin-top: 0.5rem;
+        }
+        .file-text-main {
+            color: var(--color-secondary);
+            font-weight: 600;
+        }
+        .file-name {
+            font-size: 0.875rem;
+            font-weight: 600;
+            color: var(--color-primary);
+            margin-top: 0.75rem;
+            word-break: break-all;
+        }
+
+
+        /* --- Mensajes de Estado (Éxito/Error/Info) --- */
+        #message {
+            padding: 1rem;
+            margin-top: 1.5rem;
+            border-radius: var(--border-radius);
+            font-size: 0.9rem;
+            font-weight: 500;
+            display: none; /* Oculto por defecto */
+            text-align: center;
+        }
+        .message-info {
+            background-color: #EFF6FF; /* Azul 100 */
+            color: #1D4ED8; /* Azul 700 */
+            display: block;
+        }
+        .message-success {
+            background-color: #F0FDF4; /* Verde 50 */
+            color: #15803D; /* Verde 700 */
+            display: block;
+        }
+        .message-error {
+            background-color: #FEF2F2; /* Rojo 50 */
+            color: #B91C1C; /* Rojo 700 */
+            display: block;
+        }
+        .message-warning {
+            background-color: #FFFBEB; /* Naranja 50 */
+            color: #B45309; /* Naranja 700 */
+            display: block;
+        }
+    </style>
+</head>
+<body>
+
+    <div class="container">
+        <!-- 3. Cabecera Profesional -->
+        <header class="header">
+            <div class="header-logo" aria-hidden="true">🦟🚫</div>
+            <h1>Reporte Ciudadano</h1>
+            <p>Ayúdanos a identificar focos de mosquitos en tu área.</p>
+        </header>
+
+        <!-- 4. Formulario por Pasos -->
+        <form id="reportForm" novalidate>
+
+            <!-- PASO 1: Ubicación Manual -->
+            <fieldset class="form-section">
+                <legend class="form-section-title">
+                    <span aria-hidden="true">📍</span>
+                    Paso 1: ¿Dónde está el foco?
+                </legend>
+                
+                <div class="form-group">
+                    <label for="localidad">Localidad</label>
+                    <input type="text" id="localidad" placeholder="Ej: Glew" required>
+                </div>
+                
+                <div class="form-group">
+                    <label for="barrio">Barrio</label>
+                    <input type="text" id="barrio" placeholder="Ej: Centro">
+                </div>
+
+                <div class="form-group">
+                    <label for="direccion">Dirección / Calle y altura</label>
+                    <input type="text" id="direccion" placeholder="Ej: Av. Hipólito Yrigoyen 2000">
+                </div>
+
+                <div class="form-group">
+                    <label for="codigo_postal">Código Postal</label>
+                    <input type="text" id="codigo_postal" placeholder="Ej: 1856">
+                </div>
+            </fieldset>
+            
+            <!-- PASO 2: Ubicación Automática (Geolocalización) -->
+            <fieldset class="form-section">
+                <legend class="form-section-title">
+                    <span aria-hidden="true">🛰️</span>
+                    Paso 2: Confirma la ubicación
+                </legend>
+                
+                <p style="color: var(--color-text-secondary); font-size: 0.9rem; margin-bottom: 1rem;">
+                    O presiona este botón para autocompletar la dirección y coordenadas exactas.
+                </p>
+                
+                <div class="form-group">
+                    <button type="button" class="btn btn-location" id="btn-location">
+                        <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" width="24" height="24"><path stroke-linecap="round" stroke-linejoin="round" d="M15 10.5a3 3 0 11-6 0 3 3 0 016 0z" /><path stroke-linecap="round" stroke-linejoin="round" d="M19.5 10.5c0 7.142-7.5 11.25-7.5 11.25S4.5 17.642 4.5 10.5a7.5 7.5 0 1115 0z" /></svg>
+                        Usar mi ubicación actual
+                    </button>
+                </div>
+
+                <div class="coords-group">
+                    <div class="form-group">
+                        <label for="lat">Latitud</label>
+                        <input type="number" id="lat" step="any" placeholder="Autocompletado">
+                    </div>
+                    <div class="form-group">
+                        <label for="lng">Longitud</label>
+                        <input type="number" id="lng" step="any" placeholder="Autocompletado">
+                    </div>
+                </div>
+            </fieldset>
+
+            <!-- PASO 3: Detalles y Evidencia -->
+            <fieldset class="form-section">
+                <legend class="form-section-title">
+                    <span aria-hidden="true">📸</span>
+                    Paso 3: Detalles y Evidencia
+                </legend>
+                
+                <div class="form-group">
+                    <label for="descripcion">Descripción</label>
+                    <textarea id="descripcion" rows="4" placeholder="Ej: Agua estancada en cubiertas de auto abandonado..."></textarea>
+                </div>
+
+                <div class="form-group">
+                    <label for="foto">Adjuntar Foto</label>
+                    <!-- Dropzone personalizado -->
+                    <label for="foto" class="file-dropzone">
+                        <div class="file-icon" aria-hidden="true">☁️</div>
+                        <div class="file-text">
+                            <span class="file-text-main">Haz clic para subir</span> o arrastra un archivo
+                        </div>
+                        <div id="file-name" class="file-name"></div>
+                    </label>
+                    <input type="file" id="foto" class="file-input" accept="image/*">
+                </div>
+            </fieldset>
+
+            <!-- 5. Envío y Mensajes de Estado -->
+            <div id="message"></div>
+            
+            <div class="form-group">
+                <!-- Botón de Enviar (¡CORREGIDO!) -->
+                <button type="submit" class="btn btn-submit" id="btn-submit">
+                    <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" width="24" height="24"><path stroke-linecap="round" stroke-linejoin="round" d="M9 12.75L11.25 15 15 9.75M21 12a9 9 0 11-18 0 9 9 0 0118 0z" /></svg>
+                    <span>Enviar Reporte</span>
+                </button>
+            </div>
+
+        </form>
+    </div>
+
+    <!-- 6. Lógica JavaScript (con mejoras de UX) -->
+    <script>
+        // --- Referencias a elementos del DOM ---
+        const form = document.getElementById('reportForm');
+        const messageEl = document.getElementById('message');
+        const fotoInput = document.getElementById('foto');
+        const fileNameEl = document.getElementById('file-name');
+        const btnLocation = document.getElementById('btn-location');
+        const btnSubmit = document.getElementById('btn-submit');
+        // Selector del texto del botón (¡CORREGIDO!)
+        const btnSubmitText = btnSubmit.querySelector('span'); 
+
+        // --- Función para mostrar mensajes ---
+        function showMessage(type, text) {
+            messageEl.className = `message-${type}`;
+            messageEl.textContent = text;
+        }
+
+        // --- Función para el botón de ubicación ---
+        btnLocation.addEventListener('click', getLocation);
+        
+        function getLocation() {
+            if (navigator.geolocation) {
+                showMessage('info', 'Obteniendo ubicación, por favor espera...');
+                btnLocation.disabled = true;
+                navigator.geolocation.getCurrentPosition(showPosition, showError, {
+                    enableHighAccuracy: true, // Pedimos la mejor precisión
+                    timeout: 10000 // Timeout de 10 segundos
+                });
+            } else {
+                showMessage('error', 'Tu navegador no soporta geolocalización.');
+            }
+        }
+
+        // --- Función para Geocodificación Inversa (Autocompletar) ---
+        async function showPosition(position) {
+            const lat = position.coords.latitude;
+            const lng = position.coords.longitude;
+            
+            document.getElementById('lat').value = lat.toFixed(6); // Más precisión
+            document.getElementById('lng').value = lng.toFixed(6);
+            showMessage('info', '¡Ubicación obtenida! Buscando dirección...');
+
+            try {
+                // Usamos la API de Nominatim (gratuita)
+                const response = await fetch(`https://nominatim.openstreetmap.org/reverse?format=json&lat=${lat}&lon=${lng}&zoom=18&addressdetails=1`);
+                
+                if (!response.ok) throw new Error('Respuesta de API de mapas no fue OK');
+                
+                const data = await response.json();
+                
+                if (data && data.address) {
+                    const addr = data.address;
+                    document.getElementById('direccion').value = `${addr.road || ''} ${addr.house_number || ''}`.trim();
+                    document.getElementById('barrio').value = addr.suburb || addr.neighbourhood || '';
+                    document.getElementById('localidad').value = addr.city || addr.town || addr.village || addr.state || '';
+                    document.getElementById('codigo_postal').value = addr.postcode || '';
+                    
+                    showMessage('success', '¡Dirección autocompletada!');
+                } else {
+                    showMessage('warning', 'Ubicación obtenida, pero no se pudo encontrar la dirección.');
+                }
+            } catch (error) {
+                console.error("Error en geocodificación inversa:", error);
+                showMessage('error', 'No se pudo autocompletar la dirección.');
+            } finally {
+                btnLocation.disabled = false; // Reactivamos el botón
+            }
+        }
+
+        function showError(error) {
+            let msg = "";
+            switch(error.code) {
+                case error.PERMISSION_DENIED: msg = "Permiso de ubicación denegado."; break;
+                case error.POSITION_UNAVAILABLE: msg = "La información de ubicación no está disponible."; break;
+                case error.TIMEOUT: msg = "La solicitud de ubicación expiró. Inténtalo de nuevo."; break;
+                default: msg = "Ocurrió un error desconocido al obtener la ubicación."; break;
+            }
+            showMessage('error', msg);
+            btnLocation.disabled = false; // Reactivamos el botón
+        }
+
+        // --- Función para actualizar el nombre del archivo ---
+        fotoInput.addEventListener('change', function() {
+            if (fotoInput.files.length > 0) {
+                fileNameEl.textContent = fotoInput.files[0].name;
+            } else {
+                fileNameEl.textContent = '';
+            }
+        });
+
+        // --- Función para enviar el formulario ---
+        form.addEventListener('submit', async function(event) {
+            event.preventDefault(); // Evitamos recarga
+
+            // Validar campos requeridos
+            if (document.getElementById('localidad').value.trim() === '') {
+                showMessage('error', 'Por favor, completa el campo "Localidad".');
+                document.getElementById('localidad').focus();
+                return;
+            }
+
+            // --- Estado de Carga ---
+            btnSubmit.disabled = true;
+            btnSubmitText.textContent = 'Enviando...';
+            showMessage('info', 'Procesando tu reporte, un momento...');
+
+            // 1. Creamos el FormData
+            const formData = new FormData();
+            
+            // 2. Adjuntamos todos los campos
+            formData.append('localidad', document.getElementById('localidad').value);
+            formData.append('barrio', document.getElementById('barrio').value);
+            formData.append('codigo_postal', document.getElementById('codigo_postal').value);
+            formData.append('lat', document.getElementById('lat').value);
+            formData.append('lng', document.getElementById('lng').value);
+            formData.append('direccion', document.getElementById('direccion').value);
+            formData.append('descripcion', document.getElementById('descripcion').value);
+            
+            if (fotoInput.files.length > 0) {
+                formData.append('foto', fotoInput.files[0]);
+            }
+
+            // 3. Enviamos
+            try {
+                const response = await fetch('/report', {
+                    method: 'POST',
+                    body: formData 
+                });
+
+                if (response.ok) {
+                    // --- Estado de Éxito ---
+                    showMessage('success', '¡Reporte enviado con éxito! Muchas gracias por tu colaboración.');
+                    form.reset(); // Limpiamos el formulario
+                    fileNameEl.textContent = ''; // Limpiamos el nombre del archivo
+                } else {
+                    // --- Estado de Error (del servidor) ---
+                    const errorData = await response.json();
+                    showMessage('error', `Error al enviar: ${errorData.message}`);
+                }
+            } catch (error) {
+                // --- Estado de Error (de red) ---
+                console.error('Error de red:', error);
+                showMessage('error', 'Error de conexión. Revisa tu internet e inténtalo de nuevo.');
+            } finally {
+                // --- Estado Normal (Resetear botón) ---
+                btnSubmit.disabled = false;
+                btnSubmitText.textContent = 'Enviar Reporte';
+            }
+        });
+    </script>
+
+</body>
+</html>

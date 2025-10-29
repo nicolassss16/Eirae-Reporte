@@ -1,0 +1,196 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <title>Panel de Administración de Reportes</title>
+
+    <!-- Links para el mapa (Leaflet.js) -->
+    <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" integrity="sha256-p4NxAoJBhIIN+hmNHrzRCf9tD/miZyoHS5obTRR9BMY=" crossorigin=""/>
+    <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js" integrity="sha256-20nQCchB9co0qIjJZRGuk2/Z9VM+kNiyxNV1lvTlZBo=" crossorigin=""></script>
+
+    <style>
+        body { font-family: Arial, sans-serif; margin: 20px; background-color: #f9f9f9; }
+        h1, h2 { text-align: center; color: #333; }
+        table { 
+            width: 100%; 
+            border-collapse: collapse; 
+            margin-top: 20px; 
+            box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+            background-color: #fff;
+        }
+        th, td { padding: 12px 15px; border: 1px solid #ddd; text-align: left; vertical-align: middle;}
+        th { background-color: #f4f4f4; }
+        tr:nth-child(even) { background-color: #f9f9f9; }
+        tr:hover { background-color: #f1f1f1; }
+        
+        .foto-link {
+            display: inline-block; padding: 5px 10px; background-color: #007bff;
+            color: white; text-align: center; border-radius: 4px;
+            text-decoration: none; font-weight: bold; font-size: 0.9em;
+        }
+        .foto-link:hover { background-color: #0056b3; }
+        
+        #mapa { 
+            height: 450px; 
+            margin-bottom: 25px; 
+            border: 1px solid #ccc; 
+            border-radius: 8px; 
+            box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+        }
+        
+        /* Estilo para el dropdown de estado */
+        .status-select {
+            padding: 5px;
+            border-radius: 4px;
+            border: 2px solid #ccc;
+            font-weight: bold;
+            cursor: pointer;
+            transition: all 0.2s ease;
+        }
+        .status-select[data-status="Nuevo"] { color: #007bff; border-color: #007bff; }
+        .status-select[data-status="En Proceso"] { color: #ffc107; border-color: #ffc107; }
+        .status-select[data-status="Resuelto"] { color: #28a745; border-color: #28a745; }
+        
+    </style>
+</head>
+<body>
+
+    <h1>Panel de Administración de Reportes</h1>
+
+    <h2>Mapa de Reportes</h2>
+    <div id="mapa"></div>
+
+    <h2>Tabla de Reportes</h2>
+    <table>
+        <thead>
+            <tr>
+                <th>Fecha</th>
+                <th>Localidad / Barrio</th>
+                <th>Dirección</th>
+                <th>Descripción</th>
+                <th>Foto</th>
+                <th>Estado</th>
+            </tr>
+        </thead>
+        <tbody>
+            <!-- Bucle de Flask para rellenar la tabla -->
+            {% for reporte in reportes %}
+            <tr>
+                <td>{{ reporte['fecha'] }}</td>
+                <td>{{ reporte['localidad'] }} / {{ reporte['barrio'] }}</td>
+                <td>{{ reporte['direccion'] }}</td>
+                <td>{{ reporte['descripcion'] }}</td>
+                <td>
+                    <!-- Link a la foto si existe -->
+                    {% if reporte['foto_filename'] %}
+                        <a href="/uploads/{{ reporte['foto_filename'] }}" 
+                           target="_blank" 
+                           class="foto-link">
+                           Ver Foto
+                        </a>
+                    {% else %}
+                        N/A
+                    {% endif %}
+                </td>
+                <!-- Dropdown de Estado -->
+                <td>
+                    <select class="status-select" data-id="{{ reporte['id'] }}" data-status="{{ reporte['status'] }}">
+                        <option value="Nuevo" {% if reporte['status'] == 'Nuevo' %}selected{% endif %}>
+                            Nuevo
+                        </option>
+                        <option value="En Proceso" {% if reporte['status'] == 'En Proceso' %}selected{% endif %}>
+                            En Proceso
+                        </option>
+                        <option value="Resuelto" {% if reporte['status'] == 'Resuelto' %}selected{% endif %}>
+                            Resuelto
+                        </option>
+                    </select>
+                </td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+
+    <!-- Script del Mapa -->
+    <script>
+        try {
+            // Inicializa el mapa
+            var map = L.map('mapa').setView([-34.61, -58.38], 10);
+            
+            // Añade la capa base de OpenStreetMap
+            L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+                attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a>'
+            }).addTo(map);
+
+            // Obtiene los datos JSON inyectados por Flask
+            var reportesData = {{ reportes_json | safe }};
+
+            // Recorre cada reporte y añade un pin
+            reportesData.forEach(function(reporte) {
+                if (reporte.latitud && reporte.longitud) {
+                    var lat = parseFloat(reporte.latitud);
+                    var lng = parseFloat(reporte.longitud);
+                    
+                    if (!isNaN(lat) && !isNaN(lng)) {
+                        // Contenido del popup
+                        var popupContent = `
+                            <b>${reporte.localidad || 'N/A'} / ${reporte.barrio || 'N/A'}</b><br>
+                            ${reporte.descripcion || 'Sin descripción'}<br>
+                        `;
+                        
+                        if (reporte.foto_filename) {
+                            popupContent += `<a href="/uploads/${reporte.foto_filename}" target="_blank">Ver Foto</a><br>`;
+                        }
+                        
+                        popupContent += `<br><b>Estado: ${reporte.status || 'Nuevo'}</b>`;
+
+                        // Añade el marcador al mapa
+                        L.marker([lat, lng])
+                         .addTo(map)
+                         .bindPopup(popupContent);
+                    }
+                }
+            });
+        } catch (e) {
+            console.error("Error al procesar los datos del mapa:", e);
+        }
+    </script>
+    
+    <!-- Script para manejar cambios de estado -->
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            // Obtiene todos los dropdowns de estado
+            const statusSelects = document.querySelectorAll('.status-select');
+            
+            // Les añade un "escuchador" de eventos
+            statusSelects.forEach(select => {
+                select.addEventListener('change', async function() {
+                    const reportId = this.dataset.id;
+                    const newStatus = this.value;
+                    
+                    try {
+                        // Llama a la ruta /update_status de app.py
+                        const response = await fetch(`/update_status/${reportId}`, {
+                            method: 'POST',
+                            headers: { 'Content-Type': 'application/json' },
+                            body: JSON.stringify({ status: newStatus })
+                        });
+                        
+                        if (response.ok) {
+                            // Si todo sale bien, actualiza el color del dropdown
+                            this.dataset.status = newStatus;
+                        } else {
+                            alert('Error al actualizar el estado.');
+                        }
+                    } catch (error) {
+                        console.error('Error de red:', error);
+                        alert('Error de conexión al actualizar.');
+                    }
+                });
+            });
+        });
+    </script>
+
+</body>
+</html>
+
